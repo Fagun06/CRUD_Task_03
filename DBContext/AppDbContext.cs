@@ -52,8 +52,6 @@ namespace CRUD_Task_03.DBContext
 
                 entity.ToTable("OrderRow");
 
-                entity.Property(e => e.OrderItemId).ValueGeneratedNever();
-
                 entity.Property(e => e.IsActive)
                     .HasColumnName("isActive")
                     .HasDefaultValueSql("((1))");
