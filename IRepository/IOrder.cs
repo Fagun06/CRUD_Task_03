@@ -6,12 +6,15 @@ namespace CRUD_Task_03.IRepository
     public interface IOrder
     {
         Task<MessageHelper> CreateOrderWithItem(CreateOrderDTO create);
-
         Task<MessageHelper> UpdateOrderWithItem(UpdateOrderDTO update);
-
         Task<GetOrderDetailsDTO> GetOrderDetails(int Id);
-
         Task<MessageHelper> DeleteOrder(int Id);
         Task<MaxAndMinDTO> MinimumAndMaximum();
+        Task<List<GetOrderDetailsHeaderDTO>> SearchByCustormerName(string name);
+        Task<List<GetOrderDetailsHeaderDTO>> DateRang(DateTime fromDate, DateTime ToDate);
+        Task<DateRangTotalAmountDTO> DateRangTotalAmount(DateTime fromDate, DateTime ToDate);
+        Task<List<DailyTotalSalesDTO>> DailyTotalSales();
+        Task<MessageHelper> CreateOrdersWithItemBulkInsert(List<CreateOrderDTO> createOrders);
+        Task<List<OrderListDTO>> OrdersListBypagination(int pageNo, int PageSize);
     }   
 }

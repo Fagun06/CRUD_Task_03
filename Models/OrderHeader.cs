@@ -7,7 +7,7 @@ namespace CRUD_Task_03.Models
     {
         public long OrderId { get; set; }
         public string CustomerName { get; set; } = null!;
-        public DateTime? OrderDate { get; set; }
+        public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
         public bool? IsActive { get; set; }
     }

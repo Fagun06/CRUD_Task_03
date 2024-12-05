@@ -6,4 +6,10 @@
 
         public List<GetOrderDetailsRowDTO> Rows { get; set; }
     }
+
+    public class GetCustomerDetailsWithItemDTO
+    {
+        public GetOrderDetailsHeaderDTO getOrderDetailsHeader { get; set; }
+
+    }
 }
