@@ -35,8 +35,7 @@ namespace CRUD_Task_03.Repository
                 await _context.SaveChangesAsync();
 
                 var newOrderRows = create.Rows.Select(x=> new OrderRow 
-                {
-                    OrderItemId = x.OrderItemId,
+                {               
                     OrderId = newOrderHead.OrderId,
                     ProductName = x.ProductName,
                     Quantity = x.Quantity,
@@ -326,20 +325,27 @@ namespace CRUD_Task_03.Repository
                                                            CustomerName = o.CustomerName,
                                                            OrderDate = o.OrderDate,
                                                            OrderId = o.OrderId,
-
+                                                           Rows = _context.OrderRows.Where(x=>x.OrderId ==  o.OrderId && x.IsActive == true)
+                                                                                    .Select(y => new GetOrderDetailsRowDTO {
+                                                                                        OrderItemId = y.OrderItemId,
+                                                                                        ProductName = y.ProductName,
+                                                                                        Quantity = y.Quantity,
+                                                                                        UnitPrice = y.UnitPrice,
+                                                                                    }).ToList()
+                                                                                                                           
                                                        }).ToListAsync();
-
-                foreach (var item in customer)
-                {
-                    item.Rows = await _context.OrderRows.Where(x => x.IsActive == true
-                                                        && x.OrderId == item.OrderId).Select(y => new GetOrderDetailsRowDTO
-                                                        {
-                                                            OrderItemId = y.OrderItemId,
-                                                            ProductName = y.ProductName,
-                                                            Quantity = y.Quantity,
-                                                            UnitPrice = y.UnitPrice,
-                                                        }).ToListAsync();
-                }
+                
+                //foreach (var item in customer)
+                //{
+                //    item.Rows = await _context.OrderRows.Where(x => x.IsActive == true
+                //                                        && x.OrderId == item.OrderId).Select(y => new GetOrderDetailsRowDTO
+                //                                        {
+                //                                            OrderItemId = y.OrderItemId,
+                //                                            ProductName = y.ProductName,
+                //                                            Quantity = y.Quantity,
+                //                                            UnitPrice = y.UnitPrice,
+                //                                        }).ToListAsync();
+                //}
 
                 return customer;
             }
@@ -356,26 +362,34 @@ namespace CRUD_Task_03.Repository
 
             try
             {
-                var Order = await _context.OrderHeaders.Where(x => x.OrderDate >= fromDate.Date && x.OrderDate <= ToDate.Date
+                var Order = await _context.OrderHeaders.Where(x => x.OrderDate.Date >= fromDate.Date && x.OrderDate.Date <= ToDate.Date
                                                    && x.IsActive == true).Select(o => new GetOrderDetailsHeaderDTO
                                                    {
                                                        CustomerName = o.CustomerName,
                                                        OrderDate = o.OrderDate,
                                                        OrderId = o.OrderId,
+                                                       Rows = _context.OrderRows.Where(x=>x.OrderId == o.OrderId && x.IsActive == true)
+                                                                                .Select(y=>new GetOrderDetailsRowDTO
+                                                                                {
+                                                                                    OrderItemId = y.OrderItemId,
+                                                                                    ProductName = y.ProductName,
+                                                                                    Quantity = y.Quantity,
+                                                                                    UnitPrice = y.UnitPrice,
+                                                                                }).ToList()
 
                                                    }).ToListAsync();
 
-                foreach (var item in Order)
-                {
-                    item.Rows = await _context.OrderRows.Where(x => x.OrderId == item.OrderId
-                                                        && x.IsActive == true).Select(y => new GetOrderDetailsRowDTO
-                                                        {
-                                                            OrderItemId = y.OrderItemId,
-                                                            ProductName = y.ProductName,
-                                                            Quantity = y.Quantity,
-                                                            UnitPrice = y.UnitPrice,
-                                                        }).ToListAsync();
-                }
+                //foreach (var item in Order)
+                //{
+                //    item.Rows = await _context.OrderRows.Where(x => x.OrderId == item.OrderId
+                //                                        && x.IsActive == true).Select(y => new GetOrderDetailsRowDTO
+                //                                        {
+                //                                            OrderItemId = y.OrderItemId,
+                //                                            ProductName = y.ProductName,
+                //                                            Quantity = y.Quantity,
+                //                                            UnitPrice = y.UnitPrice,
+                //                                        }).ToListAsync();
+                //}
 
                 return Order;
             }
@@ -435,7 +449,6 @@ namespace CRUD_Task_03.Repository
             }
         }
 
-
         public async Task<MessageHelper> CreateOrdersWithItemBulkInsert(List<CreateOrderDTO> createOrders)
         {
          
@@ -460,7 +473,7 @@ namespace CRUD_Task_03.Repository
 
                     var rows = createOrder.Rows.Select(x => new OrderRow
                     {
-                        OrderItemId = x.OrderItemId,
+                        
                         OrderId = newOrderHead.OrderId,
                         ProductName = x.ProductName,
                         Quantity = x.Quantity,

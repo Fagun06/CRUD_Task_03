@@ -17,6 +17,7 @@ namespace CRUD_Task_03.Controllers
             _IOrderRepo = iOrderRepo;
         }
 
+        // API 01 Add new Order With a Item
         [HttpPost]
         [Route("CreateOrderWithItem")]
 
@@ -26,6 +27,7 @@ namespace CRUD_Task_03.Controllers
             return Ok(result);
         }
 
+        // API 02 Update new Order With a Item
         [HttpPost]
         [Route("UpdateOrderWithItem")]
 
@@ -35,6 +37,7 @@ namespace CRUD_Task_03.Controllers
             return Ok(result);
         }
 
+        // API 03 Get all Order Details
         [HttpGet]
         [Route("GetOrderDatails")]
 
@@ -43,6 +46,8 @@ namespace CRUD_Task_03.Controllers
             var result = await _IOrderRepo.GetOrderDetails(Id);
             return Ok(result);
         }
+
+        // API 04 DeleteOrder
         [HttpPut]
         [Route("DeleteOrder")]
 
@@ -52,6 +57,7 @@ namespace CRUD_Task_03.Controllers
             return Ok(result);
         }
 
+        // API 05 Minimum and Maximum TotalOrder
         [HttpGet]
         [Route("MinimumAndMaximum")]
 
@@ -61,6 +67,7 @@ namespace CRUD_Task_03.Controllers
             return Ok(result);
         }
 
+        //API 06 Minimum and Maximum Details Total Order
         [HttpGet]
         [Route("MinimumMaximumDetails")]
 
@@ -70,6 +77,8 @@ namespace CRUD_Task_03.Controllers
             return Ok(result);
         }
 
+        // API 07 Search By Customer Name
+
         [HttpGet]
         [Route("SearchByCustormerName")]
         public async Task<IActionResult> SearchByCustormerName(string name)
@@ -77,6 +86,8 @@ namespace CRUD_Task_03.Controllers
             var results =await _IOrderRepo.SearchByCustormerName(name);
             return Ok(results);
         }
+
+        // API 08 Get By DateTime
         [HttpGet]
         [Route("GetByDateTime")]
 
@@ -85,7 +96,7 @@ namespace CRUD_Task_03.Controllers
             var results = await _IOrderRepo.DateRang(fromDate, ToDate);
             return Ok(results);
         }
-
+        //API 09 GetByDateTimeTotalAmount
         [HttpGet]
         [Route("GetByDateTimeTotalAmount")]
 
@@ -95,7 +106,7 @@ namespace CRUD_Task_03.Controllers
             return Ok(results);
         }
 
-
+        //Api 10 GetDailyTotalSales
         [HttpGet]
         [Route("GetDailyTotalSales")]
 
@@ -104,7 +115,7 @@ namespace CRUD_Task_03.Controllers
             var results = await _IOrderRepo.DailyTotalSales();
             return Ok(results);
         }
-
+        //API 11 Create BulkInsert Orders WithItem
         [HttpPost]
         [Route("CreateOrdersWithItemBulkInsert")]
         public async Task<IActionResult> CreateOrdersWithItemBulkInsert(List<CreateOrderDTO> createOrders)
@@ -113,6 +124,7 @@ namespace CRUD_Task_03.Controllers
             return Ok(results);
         }
 
+        //API 12 OrderListByPagination
         [HttpGet]
         [Route("OrderListByPagination")]
 
