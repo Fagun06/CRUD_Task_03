@@ -10,6 +10,7 @@ namespace CRUD_Task_03.IRepository
         Task<GetOrderDetailsDTO> GetOrderDetails(int Id);
         Task<MessageHelper> DeleteOrder(int Id);
         Task<MaxAndMinDTO> MinimumAndMaximum();
+        Task<MinMaxDTO> MaxAndMin();
         Task<List<GetOrderDetailsHeaderDTO>> SearchByCustormerName(string name);
         Task<List<GetOrderDetailsHeaderDTO>> DateRang(DateTime fromDate, DateTime ToDate);
         Task<DateRangTotalAmountDTO> DateRangTotalAmount(DateTime fromDate, DateTime ToDate);

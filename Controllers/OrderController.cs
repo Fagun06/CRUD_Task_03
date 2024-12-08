@@ -62,6 +62,15 @@ namespace CRUD_Task_03.Controllers
         }
 
         [HttpGet]
+        [Route("MinimumMaximumDetails")]
+
+        public async Task<IActionResult> MaxAndMin()
+        {
+            var result = await _IOrderRepo.MaxAndMin();
+            return Ok(result);
+        }
+
+        [HttpGet]
         [Route("SearchByCustormerName")]
         public async Task<IActionResult> SearchByCustormerName(string name)
         {

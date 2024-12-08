@@ -6,6 +6,7 @@ using CRUD_Task_03.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Xml.Linq;
+using static CRUD_Task_03.DTO.MinMaxDTO;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CRUD_Task_03.Repository
@@ -234,6 +235,8 @@ namespace CRUD_Task_03.Repository
                     Min = min,
                 };
                 return MaxMin;
+
+
             }
             catch (Exception ex)
             {
@@ -241,6 +244,78 @@ namespace CRUD_Task_03.Repository
             }
         }
 
+        public async Task<MinMaxDTO> MaxAndMin()
+        {
+            try
+            {
+                var minOrder = await _context.OrderHeaders.Where(h => h.IsActive == true)
+                                                          .OrderBy(h => h.TotalAmount)
+                                                          .FirstOrDefaultAsync();
+
+                var minOrderHeader = new GetOrderDetailsHeaderDTO
+                {
+                    OrderId = minOrder.OrderId,
+                    CustomerName = minOrder.CustomerName,
+                    OrderDate = minOrder.OrderDate,
+                };
+
+                var minOrderRows = await _context.OrderRows.Where(r => r.IsActive == true && r.OrderId == minOrder.OrderId)
+                                                     .Select(row => new GetOrderDetailsRowDTO
+                                                     {
+                                                         OrderItemId = row.OrderItemId,
+                                                         ProductName = row.ProductName,
+                                                         Quantity = row.Quantity,
+                                                         UnitPrice = row.UnitPrice,
+                                                     }).ToListAsync();
+
+                var maxOrder = await _context.OrderHeaders.Where(h => h.IsActive == true)
+                                                    .OrderByDescending(h => h.TotalAmount)
+                                                    .FirstOrDefaultAsync();
+
+                var maxOrderHeader = new GetOrderDetailsHeaderDTO
+                {
+                    OrderId = maxOrder.OrderId,
+                    CustomerName = maxOrder.CustomerName,
+                    OrderDate = maxOrder.OrderDate,
+                };
+
+                var maxOrderRows = await _context.OrderRows.Where(r => r.IsActive == true && r.OrderId == maxOrder.OrderId)
+                                                     .Select(row => new GetOrderDetailsRowDTO
+                                                     {
+                                                         OrderItemId = row.OrderItemId,
+                                                         ProductName = row.ProductName,
+                                                         Quantity = row.Quantity,
+                                                         UnitPrice = row.UnitPrice,
+                                                     }).ToListAsync();
+                return new MinMaxDTO
+                {
+                    MinOrderDetails = new GetOrderDetailsHeaderDTO
+                    {
+                        OrderId = minOrder.OrderId,
+                        CustomerName = minOrder.CustomerName,
+                        OrderDate = minOrder.OrderDate,
+                        Rows = minOrderRows,
+                    },
+
+                    MaxOrderDetails = new GetOrderDetailsHeaderDTO
+                    {
+                        OrderId= maxOrder.OrderId,
+                        CustomerName = maxOrder.CustomerName,
+                        OrderDate = maxOrder.OrderDate,
+                        Rows = maxOrderRows,
+                    }
+                };
+
+          
+
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+    
         public async Task<List<GetOrderDetailsHeaderDTO>> SearchByCustormerName(string name)
         {
             try
