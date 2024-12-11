@@ -133,6 +133,24 @@ namespace CRUD_Task_03.Controllers
             var result = await _IOrderRepo.OrdersListBypagination(pageNo,PageSize);
             return Ok(result);
         }
+        // API 13 Filtering by Date Time by Max and Min CustomerName
+        [HttpGet]
+        [Route("FiltersByDateTimeMinMaxCustormerName")]
+        public async Task<IActionResult> FiltersByDateTimeMinMaxCustormerName([FromQuery]OrderFilterDTO filter)
+        {
+            var result = await _IOrderRepo.FiltersByDateTimeMinMaxCustormerName(filter);
+            return Ok(result);
+        }
 
+
+        //API 14 Get By Date Time Total Amount Rang
+
+        [HttpGet]
+        [Route("GetByDateTimeTotalAmountRang")]
+        public async Task<IActionResult> GetByDateTimeTotalAmountRang(DateTime fromDate, DateTime ToDate)
+        {
+            var results = await _IOrderRepo.GetByDateTimeTotalAmountRang(fromDate, ToDate);
+            return Ok(results);
+        }
     }
 }

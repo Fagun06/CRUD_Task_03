@@ -46,28 +46,7 @@ namespace CRUD_Task_03.Repository
 
                 await _context.AddRangeAsync(newOrderRows);
                 await _context.SaveChangesAsync();
-
-
-                #region Second approch
-
-                //List<OrderRow> row = new List<OrderRow>();
-
-                //foreach (var item in create.Rows)
-                //{
-                //    var newOrderRow = new OrderRow
-                //    {
-                //        OrderItemId = item.OrderItemId,
-                //        OrderId = newOrderHead.OrderId,
-                //        ProductName = item.ProductName,
-                //        Quantity = item.Quantity,
-                //        UnitPrice = item.UnitPrice,
-                //    };
-                //    row.Add(newOrderRow);
-                //}
-
-                //await _context.AddRangeAsync(row);
-                //await _context.SaveChangesAsync();
-                #endregion
+              
 
                 return new MessageHelper
                 {
@@ -81,7 +60,6 @@ namespace CRUD_Task_03.Repository
             }
 
         }
-
         public async Task<MessageHelper> UpdateOrderWithItem(UpdateOrderDTO update)
         {
             try
@@ -109,19 +87,35 @@ namespace CRUD_Task_03.Repository
 
                 var rowData = await _context.OrderRows.Where(x=>x.OrderId==order.OrderId && x.IsActive==true).ToListAsync();
 
-                foreach (var item in rowData)
+                rowData = rowData.Select(item =>
                 {
                     var dt = update.Rows.Where(x => x.OrderItemId == item.OrderItemId).FirstOrDefault();
-                    if(dt != null)
+                    if (dt != null)
                     {
-                        item.Quantity=dt.Quantity;
-                        item.UnitPrice=dt.UnitPrice;
+                        item.Quantity = dt.Quantity;
+                        item.UnitPrice = dt.UnitPrice;
                     }
                     else
                     {
                         item.IsActive = false;
                     }
-                }
+                    return item;
+                }).ToList();
+
+
+                //foreach (var item in rowData)
+                //{
+                //    var dt = update.Rows.Where(x => x.OrderItemId == item.OrderItemId).FirstOrDefault();
+                //    if (dt != null)
+                //    {
+                //        item.Quantity = dt.Quantity;
+                //        item.UnitPrice = dt.UnitPrice;
+                //    }
+                //    else
+                //    {
+                //        item.IsActive = false;
+                //    }
+                //}
 
                 _context.OrderRows.UpdateRange(rowData);
                 await _context.SaveChangesAsync();
@@ -153,14 +147,13 @@ namespace CRUD_Task_03.Repository
                 throw ex;
             }
         }
-
         public async Task<GetOrderDetailsDTO> GetOrderDetails(int Id)
         {
 
             try
             {
                 var orderheader = await (from oh in _context.OrderHeaders
-                                         where oh.IsActive == true && oh.OrderId == Id
+                                         where oh.OrderId == Id && oh.IsActive == true
                                          select new GetOrderDetailsHeaderDTO
                                          {
                                              OrderId = oh.OrderId,
@@ -191,8 +184,7 @@ namespace CRUD_Task_03.Repository
                 throw ex;
             }
 
-        }
-        
+        }       
         public async Task<MessageHelper> DeleteOrder(int Id)
         {
             try
@@ -220,7 +212,6 @@ namespace CRUD_Task_03.Repository
                 throw ex;
             }
         }
-
         public async Task<MaxAndMinDTO> MinimumAndMaximum()
         {
             try
@@ -242,7 +233,6 @@ namespace CRUD_Task_03.Repository
                 throw ex;
             }
         }
-
         public async Task<MinMaxDTO> MaxAndMin()
         {
             try
@@ -313,8 +303,7 @@ namespace CRUD_Task_03.Repository
             {
                 throw;
             }
-        }
-    
+        }   
         public async Task<List<GetOrderDetailsHeaderDTO>> SearchByCustormerName(string name)
         {
             try
@@ -356,7 +345,6 @@ namespace CRUD_Task_03.Repository
 
 
         }
-
         public async Task<List<GetOrderDetailsHeaderDTO>> DateRang(DateTime fromDate , DateTime ToDate)
         {
 
@@ -399,7 +387,6 @@ namespace CRUD_Task_03.Repository
             }
 
         }
-
         public async Task<DateRangTotalAmountDTO> DateRangTotalAmount(DateTime fromDate, DateTime ToDate)
         {
 
@@ -420,7 +407,6 @@ namespace CRUD_Task_03.Repository
             }
 
         }
-
         public async Task<List<DailyTotalSalesDTO>> DailyTotalSales ()
         {
             try
@@ -448,10 +434,9 @@ namespace CRUD_Task_03.Repository
                 throw ex;
             }
         }
-
         public async Task<MessageHelper> CreateOrdersWithItemBulkInsert(List<CreateOrderDTO> createOrders)
         {
-         
+
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -459,36 +444,38 @@ namespace CRUD_Task_03.Repository
                 var orderHeaders = new List<OrderHeader>();
                 var orderRows = new List<OrderRow>();
 
-                foreach (var createOrder in createOrders)
+
+
+                var tasks = createOrders.Select(async create =>
                 {
-                   
+
                     var newOrderHead = new OrderHeader
                     {
-                        CustomerName = createOrder.CreateOrderHead.CustomerName,
+                        CustomerName = create.CreateOrderHead.CustomerName,
                         OrderDate = DateTime.Now,
-                        TotalAmount = createOrder.Rows.Sum(x => x.Quantity * x.UnitPrice),
+                        TotalAmount = create.Rows.Sum(x => x.Quantity * x.UnitPrice),
                         IsActive = true
                     };
-                    orderHeaders.Add(newOrderHead);
+                    await _context.AddAsync(newOrderHead);
+                    await _context.SaveChangesAsync();
 
-                    var rows = createOrder.Rows.Select(x => new OrderRow
+                    var newOrderRows = create.Rows.Select(x => new OrderRow
                     {
-                        
                         OrderId = newOrderHead.OrderId,
                         ProductName = x.ProductName,
                         Quantity = x.Quantity,
-                        UnitPrice = x.UnitPrice,                       
-                        IsActive = true,
-                       
+                        UnitPrice = x.UnitPrice,
+                        IsActive = true
                     }).ToList();
 
-                    orderRows.AddRange(rows);
-                }
-
-                
-                await _context.AddRangeAsync(orderHeaders);
+                    orderRows.AddRange(newOrderRows);
+                });
+                await Task.WhenAll(tasks);
                 await _context.AddRangeAsync(orderRows);
                 await _context.SaveChangesAsync();
+
+                
+
 
                 await transaction.CommitAsync();
 
@@ -501,10 +488,51 @@ namespace CRUD_Task_03.Repository
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw; 
+                throw;
             }
-        }
 
+            //using var transaction = await _context.Database.BeginTransactionAsync();
+            //try
+            //{
+            //    var allHeaders = createOrders.Select(create => new OrderHeader
+            //    {
+            //        CustomerName = create.CreateOrderHead.CustomerName,
+            //        OrderDate = DateTime.Now,
+            //        TotalAmount = create.Rows.Sum(item => item.Quantity * item.UnitPrice),
+            //        IsActive = true,
+            //    }).ToList();
+
+            //    await _context.OrderHeaders.AddRangeAsync(allHeaders);
+            //    await _context.SaveChangesAsync();
+
+            //    var allRows = createOrders.SelectMany((create, index) => create.Rows.Select(item => new OrderRow
+            //    {
+            //        OrderId = allHeaders[index].OrderId,
+            //        ProductName = item.ProductName,
+            //        Quantity = item.Quantity,
+            //        UnitPrice = item.UnitPrice,
+            //        IsActive = true,
+            //    })).ToList();
+
+            //    await _context.OrderRows.AddRangeAsync(allRows);
+            //    await _context.SaveChangesAsync();
+
+            //    await transaction.CommitAsync();
+
+            //    return new MessageHelper
+            //    {
+            //        message = "Successfully Created Order",
+            //        statusCode = 200,
+            //    };
+            //}
+            //catch (Exception)
+            //{
+            //    await transaction.RollbackAsync();
+            //    throw;
+            //}
+
+
+        }    
         public async Task<List<OrderListDTO>> OrdersListBypagination(int pageNo, int PageSize)
         {
             try
@@ -533,8 +561,76 @@ namespace CRUD_Task_03.Repository
                 throw ex;
             }
         }
+        public async  Task<List<GetOrderDetailsHeaderrDTO>> FiltersByDateTimeMinMaxCustormerName(OrderFilterDTO filter)
+        {
+           
+            try
+            {
+                
+                var orderHeaders = await _context.OrderHeaders.Where(x => x.IsActive == true
+                                             && (filter.StartDate == null || x.OrderDate.Date>=filter.StartDate.Value.Date) 
+                                             && (filter.EndDate == null || x.OrderDate <= filter.EndDate.Value.Date)
+                                             && (filter.CustomerName == null || x.CustomerName.Contains(filter.CustomerName.Trim()))
+                                             && (filter.MinTotalAmount == null || x.TotalAmount >= filter.MinTotalAmount)
+                                             && (filter.MaxTotalAmount==null || x.TotalAmount <= filter.MaxTotalAmount))
+                                             .Select(o => new GetOrderDetailsHeaderrDTO
+                                             {
+                                                 CustomerName = o.CustomerName,
+                                                 OrderDate = o.OrderDate,
+                                                 OrderId = o.OrderId,
 
+                                             }).ToListAsync();
 
+                var orderIds = orderHeaders.Select(o => o.OrderId).ToList();
 
+                var orderRows = await _context.OrderRows
+                    .Where(x => orderIds.Contains(x.OrderId) && x.IsActive == true)
+                    .Select(y => new GetOrderDetailsRowwDTO
+                    {
+                        OrderItemId = y.OrderItemId,
+                        ProductName = y.ProductName,
+                        Quantity = y.Quantity,
+                        UnitPrice = y.UnitPrice,
+                        OrderId = y.OrderId 
+                    })
+                    .ToListAsync();
+
+                
+                var updatedOrderHeaders = orderHeaders.Select(header =>
+                {
+                    header.Rows = orderRows.Where(r => r.OrderId == header.OrderId).ToList();
+                    return header;
+                }).ToList();
+
+                return orderHeaders;
+            }
+           catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<List<DailyTotalSalesDTO>> GetByDateTimeTotalAmountRang(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var res =await _context.OrderHeaders
+                                      .GroupBy(o => o.OrderDate.Date)
+                                      .Select(g => new DailyTotalSalesDTO
+                                      {
+                                          OrderDate = g.Key,
+                                          TotalSales = g.Sum(o => o.TotalAmount)
+                                      })
+                                      .OrderBy(result => result.OrderDate)
+                                      .ToListAsync();
+
+                return res;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
+
+    
 }

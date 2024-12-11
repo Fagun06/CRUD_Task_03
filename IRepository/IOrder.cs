@@ -1,5 +1,6 @@
 ﻿using CRUD_Task_03.DTO;
 using CRUD_Task_03.Helper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CRUD_Task_03.IRepository
 {
@@ -17,5 +18,7 @@ namespace CRUD_Task_03.IRepository
         Task<List<DailyTotalSalesDTO>> DailyTotalSales();
         Task<MessageHelper> CreateOrdersWithItemBulkInsert(List<CreateOrderDTO> createOrders);
         Task<List<OrderListDTO>> OrdersListBypagination(int pageNo, int PageSize);
+        Task<List<GetOrderDetailsHeaderrDTO>> FiltersByDateTimeMinMaxCustormerName(OrderFilterDTO filter);
+        Task<List<DailyTotalSalesDTO>> GetByDateTimeTotalAmountRang(DateTime fromDate, DateTime ToDate);
     }   
 }
