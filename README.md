@@ -56,12 +56,24 @@ This project provides an API for managing orders and their associated items. It 
 
 ## API Endpoints
 
+
+## API Endpoints
+
 ### Orders
-- **POST /orders**: Create a new order with items.
-- **PUT /orders/{orderId}**: Update an existing order and its items.
-- **DELETE /orders/{orderId}**: Delete an order and its associated items.
-- **GET /orders/{orderId}**: Retrieve details of a specific order.
-- **GET /orders**: Retrieve a list of orders with filtering and pagination.
+- **POST /api/Order/CreateOrderWithItem**: Create a new order with items.
+- **POST /api/Order/UpdateOrderWithItem**: Update an existing order and its items.
+- **GET /api/Order/GetOrderDatails**: Retrieve details of a specific order.
+- **PUT /api/Order/DeleteOrder**: Delete an order and its associated items.
+- **GET /api/Order/MinimumAndMaximum**: Retrieve orders based on minimum and maximum total amount.
+- **GET /api/Order/MinimumMaximumDetails**: Retrieve details for orders filtered by minimum and maximum values.
+- **GET /api/Order/SearchByCustormerName**: Search orders by customer name.
+- **GET /api/Order/GetByDateTime**: Retrieve orders within a specific date range.
+- **GET /api/Order/GetByDateTimeTotalAmount**: Get total amounts for orders within a date range.
+- **GET /api/Order/GetDailyTotalSales**: Retrieve daily total sales grouped by order date.
+- **POST /api/Order/CreateOrdersWithItemBulkInsert**: Perform a bulk insert of orders and items.
+- **GET /api/Order/OrderListByPagination**: Retrieve a paginated list of orders.
+- **GET /api/Order/FiltersByDateTimeMinMaxCustormerName**: Filter orders by date range, total amount range, and customer name.
+- **GET /api/Order/GetByDateTimeTotalAmountRang**: Retrieve orders filtered by a specific total amount range within a date range.
 
 ### Sales
 - **GET /sales/summary**: Get total sales grouped by date within a date range.
@@ -75,24 +87,16 @@ This project provides an API for managing orders and their associated items. It 
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone <repository_url>
-   cd <repository_folder>
+   git clone <[repository_url](https://github.com/Fagun06/Order-Management-System-API)>
+  
    ```
-2. Install dependencies:
-   ```bash
-   npm install
-   # or for Python
-   pip install -r requirements.txt
-   ```
-3. Configure the database connection in the `config` file.
-4. Run the application:
+2. Configure the database connection in the `config` file.
+3. Run the application:
    ```bash
    npm start
    # or for Python
    python app.py
    ```
-5. Access the API at `http://localhost:3000` (default).
-
 ---
 
 ## Examples
